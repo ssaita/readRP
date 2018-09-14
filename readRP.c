@@ -5,8 +5,8 @@ int readBuf(int n,FILE *fp);
 
 int main(void){
   FILE *fp1,*fp2;
-  char *fname1 = "/Users/saita/Dropbox/data/X02/2018/06/06/2018-06-06_12_05.txt";
-  char *fname2 = "./2018-06-06_12_05.txt";
+  char *fname1 = "/Users/saita/Dropbox/data/TEW/2018/09/01/2018-09-01_00_01.txt";
+  char *fname2 = "./TEW_20180901_0001.txt";
   char buf[100];
   char c='A';
   int index;
