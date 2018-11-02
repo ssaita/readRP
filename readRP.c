@@ -9,6 +9,8 @@
 #define N 256
 int readBuf(int n,FILE *fp);
 int day_of_year(int a, int b, int c);
+void joinpath(char *path, const char *path1, const char *path2);
+void listfiles(char *path);
 
 int main(int argc,char *argv[])
 {
@@ -47,11 +49,12 @@ int main(int argc,char *argv[])
   */
   //sprintf(fname1, "%s%04d/%02d/%02d/",dname2,year,month,day);
   printf("%s%04d/%02d/%02d/\n",dname2,year,month,day);
-  snprintf(fname1,12,"%04d/%02d/%02d/",year,month,day);
+  snprintf(fname1,12,"%04d/%02d/%02d/\n",year,month,day);
   printf("%s\n",fname1);
   strcat(fname3,dname2);
   strcat(fname3,fname1);
   printf("%s\n",fname3);
+  listfiles(fname3);
   //dp = opendir(fname3);
   /*
   if( fp1 == NULL ){
@@ -63,13 +66,28 @@ int main(int argc,char *argv[])
     return -1;
   }
   */
-  if ((dp = opendir(fname3)) == NULL) {
-      fprintf(stderr, "Can't open directory %s\n", fname3);
-      return -1;
-  }
-  for(p=readdir(dp);p!=NULL;p=readdir(dp)){
-    printf("%s\n",p->d_name);
-  }
+  // if ((dp = opendir(fname3)) == NULL) {
+  //     fprintf(stderr, "Can't open directory %s\n", fname3);
+  //     return -1;
+  // }
+  // for (p = readdir(dp); p != NULL; p = readdir(dp)) {
+  //     if (p->d_name[0] != '.') {
+  //         joinpath(dname1, p->d_name);
+  //         stat(dname1, &s);
+  //         if (!S_ISDIR(s.st_mode)) {
+  //             printf("%s\n", dname1);
+  //         }
+  //     }
+  // }
+  // closedir(dp);
+
+  return 0;
+  // for(p=readdir(dp);p!=NULL;p=readdir(dp)){
+  //   printf("%s\n",p->d_name);
+  // }
+//  while ((p = readdir(dp)) != NULL)
+//    display_elems(p);
+//  closedir(dp);
   /*
   while ((p = readdir(dp)) != NULL) {
       retval = stat(p->d_name, &s);
@@ -82,11 +100,12 @@ int main(int argc,char *argv[])
       }
   }
   */
+  /*
   if (closedir(dp) != 0) {
       fprintf(stderr, "Can't close directory %s\n", fname3);
       return -1;
   }
-
+*/
     // データのあるフォルダの中を調べる
     /*
   chdir(dname2);
@@ -193,4 +212,33 @@ int day_of_year(int a, int b, int c)
 
 
 return (daymon + dayday);
+}
+void listfiles(char *path)
+{
+    DIR *dir;
+    struct dirent *dp;
+    struct stat fi;
+    char path2[256];
+
+    dir = opendir(path);
+    for (dp = readdir(dir); dp != NULL; dp = readdir(dir)) {
+        if (dp->d_name[0] != '.') {
+            joinpath(path2, path, dp->d_name);
+            stat(path2, &fi);
+            if (!S_ISDIR(fi.st_mode)) {
+                printf("%s\n", path2);
+            }
+        }
+    }
+    closedir(dir);
+
+    return;
+}
+void joinpath(char *path, const char *path1, const char *path2)
+{
+    strcpy(path, path1);
+    strcat(path, "/");
+    strcat(path, path2);
+
+    return;
 }
