@@ -102,9 +102,9 @@ int main(int argc,char *argv[])
     printf("これからファイル：%sを開きます\n",fname[i]);
     fp1 = fopen(fname[i], "r");
     if(fp1==NULL)printf("%sのデータファイルが開けません。\n",fname[i]);
-    // c =fgetc(fp1);
+    c =fgetc(fp1);
     // printf("%c\n",c);
-    while(1){
+    while(c != EOF){
       // printf("STES11\n");
       /* if first character is 1, the magnetic field data is in this line skip 1 character */
       index=readBuf(1,fp1);
@@ -116,7 +116,6 @@ int main(int argc,char *argv[])
         hh=readBuf(2,fp1);
         mm=readBuf(2,fp1);
         ss=readBuf(2,fp1);
-
         HHH=readBuf(5,fp1);
         H = (HHH-(2^15))/(2^15)*10.24/10*600;
         DDD=readBuf(5,fp1);
@@ -124,10 +123,9 @@ int main(int argc,char *argv[])
         ZZZ=readBuf(5,fp1);
         Z = (ZZZ-(2^15))/(2^15)*10.24/10*600;
         F = sqrt(pow(H,2.0)+pow(D,2.0)+pow(Z,2));
-
         printf("%d-%02d-%02d %02d:%02d:%02d,%03d, H: %10.2f, D: %10.2f, Z:%10.2f F:%10.2f\n",YY,MM,DD,hh,mm,ss,day_of_year(MM,DD,YY),H,D,Z,F);
         fprintf(fp2,"\"%d/%02d/%02d %02d:%02d:%02d\",%03d, %10.2f, %10.2f, %10.2f, %10.2f\n",YY,MM,DD,hh,mm,ss,day_of_year(MM,DD,YY),H,D,Z,F);
-        }
+      }
         // else
         // {
         //   GPS=readBuf(15,fp1);
@@ -137,11 +135,14 @@ int main(int argc,char *argv[])
         //   LONG=readBuf(6,fp1);
         //   printf("LAT: %d, LONG: %d\n",LAT,LONG);
         // }
+        c =fgetc(fp1);
         while(c != '$' && c != EOF){
           c=fgetc(fp1);
-          if(c=='$') break;
+          //if(c=='$') break;
         }
+
         if(c==EOF) break;
+        // printf("STEP19\n");
       }
       fclose(fp1);
       i++;
