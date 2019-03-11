@@ -15,20 +15,27 @@ void listfiles(char *path);
 int main(int argc,char *argv[])
 {
   FILE *fp1,*fp2,*fp_list;
-  DIR *dp;
+  // DIR *dp;
+  DIR *dir;
+  struct dirent *dp;
   struct dirent *p;
   struct stat    s;
+  struct stat fi;
   int retval;
   //char *oname;
 //  char *fname1 = "/Users/saita/Dropbox/data/TEW/2018/09/01/2018-09-01_00_01.txt";
-  char fname1[12];
+
+  char *fname[100];
+  char fname1[20];
+  char fname2[18];
   char fname3[128]={'\0'};
   char fname4[128]={'\0'};
-  char *fname2 = "./TEW_20180901.csv";
+
   char *dname1 = "/Users/saita/Documentation/Researches/readRP/";
   //char *dname2 = "/Users/saita/Dropbox/data/TEW/";
-  char *dname2 = "/Users/saita/Dropbox/data/TEW/";
+  char *dname2 = "/Users/saita/Dropbox/data/";
   char *dname3;
+  char *stname;
   char buf[100],input[128],order[128];
   char c='A';
   int index,year,month,day;
@@ -36,145 +43,119 @@ int main(int argc,char *argv[])
   int YY,MM,DD,hh,mm,ss,HHH,DDD,ZZZ,GPS,LAT,LONG;
 	double H,D,Z,F;
 
-  if(argc > 3){
+  if(argc > 4){
     //oname = argv[1];
-    year = atoi(argv[1]);
-    month = atoi(argv[2]);
-    day = atoi(argv[3]);
+    stname = (argv[1]);
+    year = atoi(argv[2]);
+    month = atoi(argv[3]);
+    day = atoi(argv[4]);
   }
   printf("Y:%04d, M:%02d, D:%02d\n",year,month,day);
+  snprintf(fname2,18,"%s_%04d%02d%02d.csv",stname,year,month,day);
+  printf("%s\n",fname2);
+  fp2 = fopen(fname2, "w");
   /*
   fp1 = fopen(fname1, "r");
   fp2 = fopen(fname2, "w");
   */
   //sprintf(fname1, "%s%04d/%02d/%02d/",dname2,year,month,day);
-  printf("%s%04d/%02d/%02d/\n",dname2,year,month,day);
+//  printf("%s%s/%04d/%02d/%02d/\n",dname2,stname,year,month,day);
+
   snprintf(fname1,12,"%04d/%02d/%02d/\n",year,month,day);
   printf("%s\n",fname1);
+  printf("STES01\n");
   strcat(fname3,dname2);
+  strcat(fname3,stname);
+  strcat(fname3,"/");
   strcat(fname3,fname1);
   printf("%s\n",fname3);
-  listfiles(fname3);
-  //dp = opendir(fname3);
-  /*
-  if( fp1 == NULL ){
-    printf( "%s元データファイルが開けません\n", fname1 );
-    return -1;
-  }
-  if( fp2 == NULL ){
-    printf( "%s変換後データファイルが開けません\n", fname2 );
-    return -1;
-  }
-  */
-  // if ((dp = opendir(fname3)) == NULL) {
-  //     fprintf(stderr, "Can't open directory %s\n", fname3);
-  //     return -1;
-  // }
-  // for (p = readdir(dp); p != NULL; p = readdir(dp)) {
-  //     if (p->d_name[0] != '.') {
-  //         joinpath(dname1, p->d_name);
-  //         stat(dname1, &s);
-  //         if (!S_ISDIR(s.st_mode)) {
-  //             printf("%s\n", dname1);
-  //         }
-  //     }
-  // }
-  // closedir(dp);
+  printf("STES02\n");
+  // listfiles(fname3);
+  // printf("STES03\n");
 
-  return 0;
-  // for(p=readdir(dp);p!=NULL;p=readdir(dp)){
-  //   printf("%s\n",p->d_name);
-  // }
-//  while ((p = readdir(dp)) != NULL)
-//    display_elems(p);
-//  closedir(dp);
-  /*
-  while ((p = readdir(dp)) != NULL) {
-      retval = stat(p->d_name, &s);
-      if (retval != 0) {
-          fprintf(stderr, "Can't stat %s\n", p->d_name);
-          return -1;
-      }
-      if ((s.st_mode & S_IFMT) == S_IFREG) {
-          printf("Filename %10s Size %10ld\n", p->d_name, s.st_size);
-      }
-  }
-  */
-  /*
-  if (closedir(dp) != 0) {
-      fprintf(stderr, "Can't close directory %s\n", fname3);
-      return -1;
-  }
-*/
-    // データのあるフォルダの中を調べる
-    /*
-  chdir(dname2);
-  sprintf(order,"dir /B > %s/tmp.txt",dname1);
-  system(order);
-  chdir(dname1);
-  fp_list=fopen("./tmp.txt","r");
-    while(fgets(input,64,fp_list)!=NULL){
-        file_num++;
-    }
-    */
-  fprintf(fp2,"\"DateTime\", \"DOY\", \"TEWX\", \"TEWY\", \"TEWZ\", \"TEWF\"\n");
+  fprintf(fp2,"\"DateTime\", \"DOY\", \"X\", \"Y\", \"Z\", \"F\"\n");
   printf( "\n-- start : readRP --\n" );
 
   /* find a punctuation symbol.*/
-  while((c =fgetc(fp1))!= EOF){
-    while(c != '$' && c != EOF){
-      c=fgetc(fp1);
-    }
-    if(c==EOF) break;
-
-    /* if first character is 1, the magnetic field data is in this line skip 1 character */
-	 index=readBuf(1,fp1);
-		if(index == 1)
-    {
-//    printf("c:%c\n",c);
-      YY=2000+readBuf(2,fp1);
-//    printf("YY:%d\n",YY);
-      MM=readBuf(2,fp1);
-//    printf("MM:%d\n",MM);
-      DD=readBuf(2,fp1);
-//    printf("DD:%d\n",DD);
-      hh=readBuf(2,fp1);
-//    printf("hh:%d\n",hh);
-      mm=readBuf(2,fp1);
-//    printf("mm:%d\n",mm);
-      ss=readBuf(2,fp1);
-//	printf("ss:%d\n",ss);
-
-      HHH=readBuf(5,fp1);
-      H = (HHH-(2^15))/(2^15)*10.24/10*600;
-      DDD=readBuf(5,fp1);
-      D = (DDD-(2^15))/(2^15)*10.24/10*600;
-      ZZZ=readBuf(5,fp1);
-      Z = (ZZZ-(2^15))/(2^15)*10.24/10*600;
-      F = sqrt(pow(H,2.0)+pow(D,2.0)+pow(Z,2));
-
-      //printf("%c:%d-%02d-%02d %02d:%02d:%02d,%d, H: %10.2f, D: %10.2f, Z:%10.2f F:%10.2f\n",c,YY,MM,DD,hh,mm,ss,day_of_year(MM,DD,YY),H,D,Z,F);
-      fprintf(fp2,"\"%d/%02d/%02d %02d:%02d:%02d\",%d, %10.2f %10.2f %10.2f %10.2f\n",YY,MM,DD,hh,mm,ss,day_of_year(MM,DD,YY),H,D,Z,F);
-		}
-		else
-    {
-			GPS=readBuf(15,fp1);
-			c=fgetc(fp1);
-			LAT=readBuf(6,fp1);
-			c=fgetc(fp1);
-			LONG=readBuf(6,fp1);
-			printf("LAT: %d, LONG: %d\n",LAT,LONG);
-		}
+  i=0;
+  printf("STES10\n");
+  dir = opendir(fname3);
+  for (dp = readdir(dir); dp != NULL; dp = readdir(dir)) {
+      if (dp->d_name[0] != '.') {
+          joinpath(fname4, fname3, dp->d_name);
+          stat(fname4, &fi);
+          if (!S_ISDIR(fi.st_mode)) {
+              // printf("%s\n",path2);
+              // printf("STES(listfiles 00)\n");
+              fname[i]= fname4;
+              //printf("%s\n", path2);
+              printf("%s\n", fname[i]);
+              i++;
+          }
+      }
   }
+  closedir(dir);
+  printf("STEP11\n");
+  i=0;
+  printf("STEP12\n");
+  while(fname[i]!=NULL){
+    printf("これからファイル：%sを開きます\n",fname[i]);
+    fp1 = fopen(fname[i], "r");
+    if(fp1==NULL)printf("%sのデータファイルが開けません。\n",fname[i]);
+    // c =fgetc(fp1);
+    // printf("%c\n",c);
+    while(1){
+      // printf("STES11\n");
+      /* if first character is 1, the magnetic field data is in this line skip 1 character */
+      index=readBuf(1,fp1);
+      if(index == 1){
+        printf("%c%d ",c,index);
+        YY=2000+readBuf(2,fp1);
+        MM=readBuf(2,fp1);
+        DD=readBuf(2,fp1);
+        hh=readBuf(2,fp1);
+        mm=readBuf(2,fp1);
+        ss=readBuf(2,fp1);
+
+        HHH=readBuf(5,fp1);
+        H = (HHH-(2^15))/(2^15)*10.24/10*600;
+        DDD=readBuf(5,fp1);
+        D = (DDD-(2^15))/(2^15)*10.24/10*600;
+        ZZZ=readBuf(5,fp1);
+        Z = (ZZZ-(2^15))/(2^15)*10.24/10*600;
+        F = sqrt(pow(H,2.0)+pow(D,2.0)+pow(Z,2));
+
+        printf("%d-%02d-%02d %02d:%02d:%02d,%03d, H: %10.2f, D: %10.2f, Z:%10.2f F:%10.2f\n",YY,MM,DD,hh,mm,ss,day_of_year(MM,DD,YY),H,D,Z,F);
+        fprintf(fp2,"\"%d/%02d/%02d %02d:%02d:%02d\",%03d, %10.2f, %10.2f, %10.2f, %10.2f\n",YY,MM,DD,hh,mm,ss,day_of_year(MM,DD,YY),H,D,Z,F);
+        }
+        // else
+        // {
+        //   GPS=readBuf(15,fp1);
+        //   c=fgetc(fp1);
+        //   LAT=readBuf(6,fp1);
+        //   c=fgetc(fp1);
+        //   LONG=readBuf(6,fp1);
+        //   printf("LAT: %d, LONG: %d\n",LAT,LONG);
+        // }
+        while(c != '$' && c != EOF){
+          c=fgetc(fp1);
+          if(c=='$') break;
+        }
+        if(c==EOF) break;
+      }
+      fclose(fp1);
+      i++;
+      printf("STEP20\n");
+    }
 
   /*  while( (c = fgetc( fp1 )) != EOF ){
     printf( "%c", c );
   }
   */
-  fclose( fp1 );
+
 //  fclose( fp2 );
   printf( "\n-- end : readRP --\n" );
-
+  fclose(fp2);
   return 0;
 }
 
@@ -213,31 +194,39 @@ int day_of_year(int a, int b, int c)
 
 return (daymon + dayday);
 }
-void listfiles(char *path)
-{
-    DIR *dir;
-    struct dirent *dp;
-    struct stat fi;
-    char path2[256];
 
-    dir = opendir(path);
-    for (dp = readdir(dir); dp != NULL; dp = readdir(dir)) {
-        if (dp->d_name[0] != '.') {
-            joinpath(path2, path, dp->d_name);
-            stat(path2, &fi);
-            if (!S_ISDIR(fi.st_mode)) {
-                printf("%s\n", path2);
-            }
-        }
-    }
-    closedir(dir);
+// void listfiles(char *path)
+// {
+//     DIR *dir;
+//     struct dirent *dp;
+//     struct stat fi;
+//     char path2[256];
+//     int i=0;
+//
+//     dir = opendir(path);
+//     for (dp = readdir(dir); dp != NULL; dp = readdir(dir)) {
+//         if (dp->d_name[0] != '.') {
+//             joinpath(path2, path, dp->d_name);
+//             stat(path2, &fi);
+//             if (!S_ISDIR(fi.st_mode)) {
+//                 // printf("%s\n",path2);
+//                 // printf("STES(listfiles 00)\n");
+//                 fname[i]= path2;
+//                 //printf("%s\n", path2);
+//                 printf("%s\n", fname[i]);
+//                 i++;
+//             }
+//         }
+//     }
+//     closedir(dir);
+//
+//     return;
+// }
 
-    return;
-}
 void joinpath(char *path, const char *path1, const char *path2)
 {
     strcpy(path, path1);
-    strcat(path, "/");
+//    strcat(path, "/");
     strcat(path, path2);
 
     return;
