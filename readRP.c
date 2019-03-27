@@ -13,6 +13,7 @@ int readBuf(int n,FILE *fp);
 int day_of_year(int a, int b, int c);
 void joinpath(char *path, const char *path1, const char *path2);
 void listfiles(char *path);
+
 int selects(struct dirent *dir)
 {
 	if(dir->d_name[0] == '.')
@@ -181,7 +182,8 @@ int main(int argc,char *argv[])
       i++;
       printf("STEP20\n");
     }
-    raise(SIGTRAP);
+    free(namelist);
+    // raise(SIGTRAP);
   /*  while( (c = fgetc( fp1 )) != EOF ){
     printf( "%c", c );
   }
